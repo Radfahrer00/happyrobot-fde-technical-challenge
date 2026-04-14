@@ -1,0 +1,35 @@
+# Environment
+.env
+backend/.env
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+backend/.venv/
+backend/venv/
+backend/*.db
+backend/*.db-journal
+
+# Node
+dashboard/node_modules/
+dashboard/dist/
+
+# Misc
+.DS_Store
+*.log
+
+# Challenge PDFs — keep off public repo
+*.pdf
+
+# Claude Code workspace files
+.claude/
+
+# Internal / unpublished docs
+CLAUDE.md
+generate_pdf.py
+Acme Logistics - Build Description.md
+backend/generate_loads.py
+dashboard/README.md
