@@ -80,6 +80,15 @@ def search_loads(
             "equipment_type"
         ].lower():
             continue
+        # Skip loads with past pickup dates
+        try:
+            pickup = datetime.fromisoformat(load["pickup_datetime"])
+            if pickup.tzinfo is None:
+                pickup = pickup.replace(tzinfo=timezone.utc)
+            if pickup < now:
+                continue
+        except (ValueError, KeyError):
+            pass
         results.append(load)
 
     now = datetime.now(timezone.utc)
