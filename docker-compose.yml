@@ -25,6 +25,7 @@ services:
       dockerfile: Dockerfile
       args:
         - VITE_API_KEY=${API_KEY:-dev-api-key}
+        - VITE_API_URL=http://localhost:8000
     ports:
       - "3000:80"
     depends_on:
