@@ -93,12 +93,16 @@ def get_aging_loads(
     return aging[:limit]
 
 
-@router.get("/search", response_model=list[Load])
+class LoadSearchResponse(BaseModel):
+    data: list[Load]
+
+
+@router.get("/search", response_model=LoadSearchResponse)
 def search(
     origin: str | None = Query(default=None),
     destination: str | None = Query(default=None),
     equipment_type: str | None = Query(default=None),
     _: str = Depends(verify_api_key),
-) -> list[Load]:
+) -> LoadSearchResponse:
     results = search_loads(origin=origin, destination=destination, equipment_type=equipment_type)
-    return [Load(**r) for r in results]
+    return LoadSearchResponse(data=[Load(**r) for r in results])
