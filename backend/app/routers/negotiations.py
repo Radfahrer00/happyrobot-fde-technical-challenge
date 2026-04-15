@@ -6,7 +6,7 @@ from app.services.load_matcher import get_load_by_id
 
 router = APIRouter(prefix="/negotiations", tags=["negotiations"])
 
-FLOOR_PCT = 0.85  # minimum acceptable rate as % of loadboard_rate
+CEILING_PCT = 1.15  # maximum Acme will pay above loadboard_rate (hard reject beyond this)
 MAX_ROUNDS = 3
 
 
@@ -36,37 +36,49 @@ def evaluate_offer(
     if loadboard_rate is None:
         raise HTTPException(status_code=404, detail=f"Load {body.load_id} not found")
 
-    floor = round(loadboard_rate * FLOOR_PCT, 2)
+    ceiling = round(loadboard_rate * CEILING_PCT, 2)
     offered = body.offered_rate
     round_num = max(1, min(body.round_number, MAX_ROUNDS))
 
-    if offered >= floor:
+    # Carrier accepted at or below our loadboard rate — great deal
+    if offered <= loadboard_rate:
         return EvaluateResponse(
             decision="accept",
             counter_rate=None,
             message=f"We can work with that. Rate of ${offered:,.0f} is accepted.",
         )
 
+    # Carrier is asking way too much — reject immediately
+    if offered > ceiling:
+        return EvaluateResponse(
+            decision="reject",
+            counter_rate=None,
+            message=(
+                f"Unfortunately we can't go above ${loadboard_rate:,.0f} on this load. "
+                "We're too far apart to make this work. Thank you for your time."
+            ),
+        )
+
+    # Rounds exhausted — reject
     if round_num >= MAX_ROUNDS:
         return EvaluateResponse(
             decision="reject",
             counter_rate=None,
             message=(
-                f"Unfortunately we're unable to go below ${floor:,.0f} on this load. "
-                "We've reached the end of our negotiation. Thank you for your time."
+                f"We've reached the end of our negotiation. "
+                f"Our best offer remains ${loadboard_rate:,.0f}. Thank you for your time."
             ),
         )
 
-    # Counter at midpoint, rounded to nearest $25
+    # Counter at midpoint between loadboard rate and carrier's ask, rounded to nearest $25
     raw_counter = (offered + loadboard_rate) / 2
     counter = round(raw_counter / 25) * 25
-    counter = max(counter, floor)
+    counter = min(counter, ceiling)
 
     return EvaluateResponse(
         decision="counter",
         counter_rate=counter,
         message=(
-            f"Our best counter is ${counter:,.0f}. "
-            f"The loadboard rate is ${loadboard_rate:,.0f} and we need to stay close to that."
+            f"We can come up to ${counter:,.0f} — that's our best offer on this load."
         ),
     )
