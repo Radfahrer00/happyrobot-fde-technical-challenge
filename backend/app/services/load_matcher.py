@@ -69,6 +69,7 @@ def search_loads(
     loads surface first.
     """
     loads = _load_data()
+    now = datetime.now(timezone.utc)
     results = []
 
     for load in loads:
@@ -91,7 +92,6 @@ def search_loads(
             pass
         results.append(load)
 
-    now = datetime.now(timezone.utc)
 
     def pickup_delta(load: dict) -> float:
         try:
