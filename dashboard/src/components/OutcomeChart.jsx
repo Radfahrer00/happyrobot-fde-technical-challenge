@@ -43,13 +43,13 @@ export default function OutcomeChart({ breakdown }) {
       </h3>
       <div style={{ display: 'flex', gap: 24, alignItems: 'center' }}>
         <ResponsiveContainer width="55%" height={220}>
-          <PieChart>
+          <PieChart margin={{ top: 10, right: 10, bottom: 10, left: 10 }}>
             <Pie
               data={data}
               cx="50%"
               cy="50%"
-              innerRadius={55}
-              outerRadius={90}
+              innerRadius={50}
+              outerRadius={80}
               paddingAngle={3}
               dataKey="value"
             >
