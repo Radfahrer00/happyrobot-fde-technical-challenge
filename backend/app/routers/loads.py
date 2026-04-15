@@ -93,27 +93,12 @@ def get_aging_loads(
     return aging[:limit]
 
 
-class LoadSearchRequest(BaseModel):
-    origin: str | None = None
-    destination: str | None = None
-    equipment_type: str | None = None
-
-
 @router.get("/search", response_model=list[Load])
-def search_get(
+def search(
     origin: str | None = Query(default=None),
     destination: str | None = Query(default=None),
     equipment_type: str | None = Query(default=None),
     _: str = Depends(verify_api_key),
 ) -> list[Load]:
     results = search_loads(origin=origin, destination=destination, equipment_type=equipment_type)
-    return [Load(**r) for r in results]
-
-
-@router.post("/search", response_model=list[Load])
-def search_post(
-    body: LoadSearchRequest,
-    _: str = Depends(verify_api_key),
-) -> list[Load]:
-    results = search_loads(origin=body.origin, destination=body.destination, equipment_type=body.equipment_type)
     return [Load(**r) for r in results]
